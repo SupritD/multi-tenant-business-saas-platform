@@ -13,6 +13,32 @@
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
+                        @if(app()->environment('local'))
+                            @php $devUsers = \App\Models\User::orderBy('tenant_id')->orderBy('email')->get(); @endphp
+                            <div class="mb-3 p-3 border border-danger rounded bg-light">
+                                <label for="dev-user-select" class="form-label fw-bold text-danger">🛠️ Quick Dev Login</label>
+                                <select id="dev-user-select" class="form-select border-danger">
+                                    <option value="">-- Choose a user --</option>
+                                    @foreach($devUsers as $u)
+                                        <option value="{{ $u->email }}">{{ $u->name }} ({{ $u->email }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const devSelect = document.getElementById('dev-user-select');
+                                    if(devSelect) {
+                                        devSelect.addEventListener('change', function() {
+                                            if(this.value) {
+                                                document.getElementById('login-email').value = this.value;
+                                                document.getElementById('login-password').value = 'Password@123';
+                                            }
+                                        });
+                                    }
+                                });
+                            </script>
+                        @endif
+
                         <div class="mb-3">
                             <label for="login-email" class="form-label fw-bold">{{ __('Email Address') }}</label>
                             <input id="login-email" type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">

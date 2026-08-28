@@ -11,6 +11,34 @@
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
+                        @if(app()->environment('local'))
+                            @php $devUsers = \App\Models\User::orderBy('tenant_id')->orderBy('email')->get(); @endphp
+                            <div class="row mb-4">
+                                <label for="dev-user-select" class="col-md-4 col-form-label text-md-end text-danger fw-bold">🛠️ Quick Dev Login</label>
+                                <div class="col-md-6">
+                                    <select id="dev-user-select" class="form-select border-danger">
+                                        <option value="">-- Choose a user --</option>
+                                        @foreach($devUsers as $u)
+                                            <option value="{{ $u->email }}">{{ $u->name }} ({{ $u->email }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const devSelect = document.getElementById('dev-user-select');
+                                    if(devSelect) {
+                                        devSelect.addEventListener('change', function() {
+                                            if(this.value) {
+                                                document.getElementById('email').value = this.value;
+                                                document.getElementById('password').value = 'Password@123';
+                                            }
+                                        });
+                                    }
+                                });
+                            </script>
+                        @endif
+
                         <div class="row mb-3">
                             <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
 
