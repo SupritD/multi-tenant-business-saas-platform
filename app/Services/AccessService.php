@@ -128,7 +128,7 @@ class AccessService
          * |--------------------------------------------------------------------------
          */
 
-        $subscription = DB::table('tenant_subscriptions')
+        $subscription = DB::table('subscriptions')
             ->where('tenant_id', $tenantId)
             ->whereIn('status', [
                 'active',

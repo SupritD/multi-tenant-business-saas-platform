@@ -13,13 +13,18 @@ class Permission extends Model
         'module',
         'action',
         'description',
+        'permission_type',
+        'is_system',
         'is_active',
+        'sort_order',
     ];
 
     protected function casts(): array
     {
         return [
+            'is_system' => 'boolean',
             'is_active' => 'boolean',
+            'sort_order' => 'integer',
         ];
     }
 
