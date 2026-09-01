@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subscription extends Model
 {
@@ -34,11 +34,17 @@ class Subscription extends Model
      * --------------------------------------------------------------------------
      */
 
+    /**
+     * @return BelongsTo<Tenant, $this>
+     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
+    /**
+     * @return BelongsTo<Plan, $this>
+     */
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);
@@ -61,7 +67,7 @@ class Subscription extends Model
      */
     public function isActive(): bool
     {
-        if (!in_array($this->status, ['trial', 'active'], true)) {
+        if (! in_array($this->status, ['trial', 'active'], true)) {
             return false;
         }
 
@@ -115,11 +121,11 @@ class Subscription extends Model
      */
     public function hasFeature(string $featureSlug): bool
     {
-        if (!$this->isActive()) {
+        if (! $this->isActive()) {
             return false;
         }
 
-        if (!$this->plan) {
+        if (! $this->plan) {
             return false;
         }
 

@@ -18,6 +18,13 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/phpstan/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/testing/
+/storage/framework/views/
+/storage/framework/phpstan/
+/storage/logs/
 /vendor
 Homestead.json
 Homestead.yaml

@@ -117,12 +117,12 @@ class PlanFeatureSeeder extends Seeder
         $now = now();
 
         foreach ($planFeatures as $planSlug => $featureSlugs) {
-            if (!isset($plans[$planSlug])) {
+            if (! isset($plans[$planSlug])) {
                 continue;
             }
 
             foreach (array_unique($featureSlugs) as $featureSlug) {
-                if (!isset($features[$featureSlug])) {
+                if (! isset($features[$featureSlug])) {
                     continue;
                 }
 

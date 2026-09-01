@@ -42,13 +42,13 @@ class SubscriptionService
     {
         $subscription = $this->getActiveSubscription($tenant);
 
-        if (!$subscription) {
+        if (! $subscription) {
             return false;
         }
 
         $plan = $subscription->plan;
 
-        if (!$plan || !$plan->is_active) {
+        if (! $plan || ! $plan->is_active) {
             return false;
         }
 
@@ -70,13 +70,13 @@ class SubscriptionService
                 ->where('is_active', true)
                 ->first();
 
-            if (!$plan) {
+            if (! $plan) {
                 throw ValidationException::withMessages([
                     'plan_id' => 'The selected plan is not active or does not exist.',
                 ]);
             }
 
-            if (!in_array($billingCycle, ['monthly', 'yearly'], true)) {
+            if (! in_array($billingCycle, ['monthly', 'yearly'], true)) {
                 throw ValidationException::withMessages([
                     'billing_cycle' => 'Invalid billing cycle.',
                 ]);

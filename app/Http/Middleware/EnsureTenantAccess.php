@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Closure;
 
 class EnsureTenantAccess
 {
@@ -14,7 +14,7 @@ class EnsureTenantAccess
     ): Response {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
@@ -37,7 +37,7 @@ class EnsureTenantAccess
 
         $tenant = $user->tenant;
 
-        if (!$tenant) {
+        if (! $tenant) {
             abort(403, 'Tenant not found.');
         }
 

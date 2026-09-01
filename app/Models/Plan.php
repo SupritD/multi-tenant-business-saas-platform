@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Model;
 
 class Plan extends Model
 {
@@ -32,6 +31,9 @@ class Plan extends Model
         'sort_order' => 'integer',
     ];
 
+    /**
+     * @return BelongsToMany<Feature, $this>
+     */
     public function features(): BelongsToMany
     {
         return $this
@@ -43,6 +45,9 @@ class Plan extends Model
             ->withTimestamps();
     }
 
+    /**
+     * @return HasMany<Subscription, $this>
+     */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);

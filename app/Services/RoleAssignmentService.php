@@ -58,7 +58,7 @@ class RoleAssignmentService
             ]);
         }
 
-        if (!$role->is_active) {
+        if (! $role->is_active) {
             throw ValidationException::withMessages([
                 'role' => 'Cannot assign an inactive role.',
             ]);
@@ -95,6 +95,9 @@ class RoleAssignmentService
 
     /**
      * Replace all roles for a user.
+     * Synchronize the user's roles.
+     *
+     * @param  array<int, int>  $roleIds
      */
     public function syncRoles(User $user, array $roleIds): void
     {

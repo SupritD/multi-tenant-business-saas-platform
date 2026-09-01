@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -58,7 +59,8 @@ class User extends Authenticatable
     /**
      * Tenant this user belongs to.
      *
-     * Platform users such as Super Admin may have tenant_id = null.
+     * @return BelongsTo<Tenant, $this>
+     *                                  Platform users such as Super Admin may have tenant_id = null.
      */
     public function tenant(): BelongsTo
     {
@@ -67,6 +69,8 @@ class User extends Authenticatable
 
     /**
      * Roles assigned to this user.
+     *
+     * @return BelongsToMany<Role, $this>
      */
     public function roles(): BelongsToMany
     {
@@ -95,6 +99,9 @@ class User extends Authenticatable
 
     /**
      * Check whether the user has any of the given roles.
+     * Determine whether the user has any of the given roles.
+     *
+     * @param  array<int, string>  $roleSlugs
      */
     public function hasAnyRole(array $roleSlugs): bool
     {
@@ -135,7 +142,7 @@ class User extends Authenticatable
      */
     public function isTenantUser(): bool
     {
-        return !is_null($this->tenant_id);
+        return ! is_null($this->tenant_id);
     }
 
     /**

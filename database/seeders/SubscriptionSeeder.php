@@ -19,7 +19,7 @@ class SubscriptionSeeder extends Seeder
             ->where('slug', 'professional')
             ->first();
 
-        if (!$freePlan || !$professionalPlan) {
+        if (! $freePlan || ! $professionalPlan) {
             throw new \RuntimeException(
                 'Required plans were not found. Run PlanSeeder first.'
             );

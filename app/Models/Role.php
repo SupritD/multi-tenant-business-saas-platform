@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
@@ -27,11 +27,17 @@ class Role extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Tenant, $this>
+     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
+    /**
+     * @return BelongsToMany<User, $this>
+     */
     public function users(): BelongsToMany
     {
         return $this
@@ -40,6 +46,9 @@ class Role extends Model
             ->withTimestamps();
     }
 
+    /**
+     * @return BelongsToMany<Permission, $this>
+     */
     public function permissions(): BelongsToMany
     {
         return $this

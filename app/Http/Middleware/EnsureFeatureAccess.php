@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Services\AccessService;
+use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Closure;
 
 class EnsureFeatureAccess
 {
@@ -20,7 +20,7 @@ class EnsureFeatureAccess
     ): Response {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
@@ -38,7 +38,7 @@ class EnsureFeatureAccess
         }
 
         if (
-            !$this->accessService->hasFeature(
+            ! $this->accessService->hasFeature(
                 $user->tenant_id,
                 $feature
             )

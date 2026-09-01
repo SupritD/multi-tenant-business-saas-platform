@@ -36,7 +36,7 @@ class UserSeeder extends Seeder
                 ],
                 [
                     'tenant_id' => null,
-                    'name' => $role->name . ' User',
+                    'name' => $role->name.' User',
                     'password' => Hash::make('Password@123'),
                     'status' => 'active',
                     'email_verified_at' => $now,
@@ -94,7 +94,7 @@ class UserSeeder extends Seeder
                     ],
                     [
                         'tenant_id' => $tenantId,
-                        'name' => $role->name . ' User',
+                        'name' => $role->name.' User',
                         'password' => Hash::make('Password@123'),
                         'status' => 'active',
                         'email_verified_at' => $now,

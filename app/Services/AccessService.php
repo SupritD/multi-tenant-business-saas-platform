@@ -98,7 +98,7 @@ class AccessService
             ->where('is_active', true)
             ->first();
 
-        if (!$feature) {
+        if (! $feature) {
             return false;
         }
 
@@ -147,7 +147,7 @@ class AccessService
             ->latest('id')
             ->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return false;
         }
 
@@ -162,7 +162,7 @@ class AccessService
             ->where('is_active', true)
             ->exists();
 
-        if (!$planExists) {
+        if (! $planExists) {
             return false;
         }
 
@@ -224,7 +224,7 @@ class AccessService
             ->where('status', 'active')
             ->exists();
 
-        if (!$tenantActive) {
+        if (! $tenantActive) {
             return false;
         }
 
@@ -236,7 +236,7 @@ class AccessService
 
         if (
             $featureSlug !== null &&
-            !$this->hasFeature($user->tenant_id, $featureSlug)
+            ! $this->hasFeature($user->tenant_id, $featureSlug)
         ) {
             return false;
         }

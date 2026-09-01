@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Model;
 
 class Tenant extends Model
 {
@@ -23,6 +23,9 @@ class Tenant extends Model
      * |--------------------------------------------------------------------------
      */
 
+    /**
+     * @return HasMany<User, $this>
+     */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
@@ -34,6 +37,9 @@ class Tenant extends Model
      * |--------------------------------------------------------------------------
      */
 
+    /**
+     * @return HasMany<Role, $this>
+     */
     public function roles(): HasMany
     {
         return $this->hasMany(Role::class);
@@ -47,6 +53,8 @@ class Tenant extends Model
 
     /**
      * All subscriptions belonging to this tenant.
+     *
+     * @return HasMany<Subscription, $this>
      */
     public function subscriptions(): HasMany
     {
@@ -57,6 +65,8 @@ class Tenant extends Model
      * Most recently created subscription.
      *
      * This can be active, cancelled, expired, etc.
+     *
+     * @return HasOne<Subscription, $this>
      */
     public function subscription(): HasOne
     {
@@ -73,6 +83,8 @@ class Tenant extends Model
      * - status is trial or active
      * - starts_at has been reached
      * - ends_at has not been reached
+     *
+     * @return HasOne<Subscription, $this>
      */
     public function activeSubscription(): HasOne
     {
@@ -110,6 +122,8 @@ class Tenant extends Model
      * Subscription → Plan → Plan Features
      *
      * tenant_features can be used later for tenant-specific overrides.
+     *
+     * @return BelongsToMany<Feature, $this>
      */
     public function features(): BelongsToMany
     {

@@ -30,7 +30,7 @@ class RolePermissionSeeder extends Seeder
             );
 
             foreach ($permissionSlugs as $permissionSlug) {
-                if (!isset($permissions[$permissionSlug])) {
+                if (! isset($permissions[$permissionSlug])) {
                     continue;
                 }
 
@@ -51,6 +51,8 @@ class RolePermissionSeeder extends Seeder
 
     /**
      * Return permissions assigned to a role.
+     *
+     * @return array<int, string>
      */
     private function permissionsForRole(
         string $roleSlug,
@@ -291,6 +293,8 @@ class RolePermissionSeeder extends Seeder
 
     /**
      * Permissions for management roles.
+     *
+     * @return array<int, string>
      */
     private function managerPermissions(): array
     {

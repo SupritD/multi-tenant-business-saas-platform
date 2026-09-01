@@ -18,7 +18,7 @@ class AccessServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->service = new AccessService();
+        $this->service = new AccessService;
     }
 
     private function createTenant(
