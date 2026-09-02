@@ -21,7 +21,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'tenant_id',
         'name',
         'email',
         'password',
@@ -115,19 +114,19 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check whether the user has a permission.
      */
-    public function hasPermission(string $permissionSlug): bool
-    {
-        return $this
-            ->roles()
-            ->where('roles.is_active', true)
-            ->whereHas('permissions', function ($query) use ($permissionSlug) {
-                $query
-                    ->where('permissions.slug', $permissionSlug)
-                    ->where('permissions.is_active', true)
-                    ->where('role_permissions.is_allowed', true);
-            })
-            ->exists();
-    }
+    // public function hasPermission(string $permissionSlug): bool
+    // {
+    //     return $this
+    //         ->roles()
+    //         ->where('roles.is_active', true)
+    //         ->whereHas('permissions', function ($query) use ($permissionSlug) {
+    //             $query
+    //                 ->where('permissions.slug', $permissionSlug)
+    //                 ->where('permissions.is_active', true)
+    //                 ->where('role_permissions.is_allowed', true);
+    //         })
+    //         ->exists();
+    // }
 
     /**
      * Check whether the user is a platform-level user.

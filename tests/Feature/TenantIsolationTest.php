@@ -200,9 +200,11 @@ class TenantIsolationTest extends TestCase
             $this->service->can($user, 'manage_users')
         );
 
-        $user->update([
+        $user->forceFill([
             'tenant_id' => 2,
-        ]);
+        ])->save();
+
+        $this->assertSame(2, $user->tenant_id);
 
         $this->assertFalse(
             $this->service->can($user, 'manage_users')
