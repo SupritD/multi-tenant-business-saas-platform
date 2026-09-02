@@ -140,4 +140,14 @@ class Tenant extends Model
             ->withPivot('is_enabled')
             ->withTimestamps();
     }
+
+    /**
+     * Customers belonging to this tenant.
+     *
+     * @return HasMany<Customer, $this>
+     */
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
 }

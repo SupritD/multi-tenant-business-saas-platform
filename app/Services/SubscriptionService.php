@@ -14,7 +14,7 @@ class SubscriptionService
         return $tenant
             ->subscriptions()
             ->with('plan')
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'trial'])
             ->where(function ($query) {
                 $query
                     ->whereNull('starts_at')
@@ -84,7 +84,7 @@ class SubscriptionService
 
             $tenant
                 ->subscriptions()
-                ->where('status', 'active')
+                ->whereIn('status', ['active', 'trial'])
                 ->update([
                     'status' => 'cancelled',
                     'cancelled_at' => now(),

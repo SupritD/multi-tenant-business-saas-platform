@@ -27,6 +27,15 @@ class AccessService
          */
 
         if ($user->tenant_id !== null) {
+            $tenantActive = DB::table('tenants')
+                ->where('id', $user->tenant_id)
+                ->where('status', 'active')
+                ->exists();
+
+            if (! $tenantActive) {
+                return false;
+            }
+
             return DB::table('user_roles')
                 ->join('roles', 'roles.id', '=', 'user_roles.role_id')
                 ->join(
@@ -87,6 +96,15 @@ class AccessService
         int $tenantId,
         string $featureSlug
     ): bool {
+        $tenantActive = DB::table('tenants')
+            ->where('id', $tenantId)
+            ->where('status', 'active')
+            ->exists();
+
+        if (! $tenantActive) {
+            return false;
+        }
+
         /*
          * |--------------------------------------------------------------------------
          * | Feature Must Exist & Be Globally Active
