@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,10 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 
+    Route::middleware('tenant.user')->group(function () {
+        Route::resource('customers', CustomerController::class);
+    });
+
     /*
      * Profile
      *
@@ -67,4 +72,4 @@ Route::middleware([
  * |
  */
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
