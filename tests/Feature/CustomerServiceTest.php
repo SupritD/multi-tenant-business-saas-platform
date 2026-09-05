@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\CustomerService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
@@ -67,7 +68,7 @@ class CustomerServiceTest extends TestCase
             'name' => 'Other Customer',
         ]);
 
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectException(ModelNotFoundException::class);
 
         $this->service->findForUser($user, $otherCustomer->id);
     }
@@ -87,7 +88,7 @@ class CustomerServiceTest extends TestCase
             'name' => 'Original Name',
         ]);
 
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectException(ModelNotFoundException::class);
 
         $this->service->update(
             $user,
@@ -116,7 +117,7 @@ class CustomerServiceTest extends TestCase
             'name' => 'Protected Customer',
         ]);
 
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectException(ModelNotFoundException::class);
 
         $this->service->delete($user, $otherCustomer->id);
 

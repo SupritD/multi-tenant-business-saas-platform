@@ -3,6 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
+use App\Models\Feature;
+use App\Models\Permission;
+use App\Models\Plan;
+use App\Models\Role;
+use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,6 +17,92 @@ class CustomerControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function grantCustomerAccess(User $user): void
+    {
+        $tenantId = $user->tenant_id;
+
+        $role = Role::create([
+            'tenant_id' => $tenantId,
+            'name' => 'Test Tenant Admin',
+            'slug' => 'test-tenant-admin',
+            'description' => 'Test role for customer authorization.',
+            'role_type' => 'tenant',
+            'is_system' => false,
+            'is_active' => true,
+        ]);
+
+        $user->roles()->attach($role->id, [
+            'assigned_at' => now(),
+        ]);
+
+        $permissionSlugs = [
+            'customers.view',
+            'customers.create',
+            'customers.update',
+        ];
+
+        foreach ($permissionSlugs as $slug) {
+            $permission = Permission::firstOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => ucfirst(str_replace('.', ' ', $slug)),
+                    'module' => 'customers',
+                    'action' => explode('.', $slug)[1],
+                    'permission_type' => 'system',
+                    'is_system' => true,
+                    'is_active' => true,
+                    'sort_order' => 0,
+                ]
+            );
+
+            $role->permissions()->attach($permission->id, [
+                'is_allowed' => true,
+            ]);
+        }
+
+        $feature = Feature::firstOrCreate(
+            ['slug' => 'customer-management'],
+            [
+                'name' => 'Customer Management',
+                'category' => 'customers',
+                'description' => 'Customer management module.',
+                'feature_type' => 'module',
+                'is_system' => true,
+                'is_active' => true,
+                'sort_order' => 0,
+            ]
+        );
+
+        $plan = Plan::create([
+            'name' => 'Test Plan',
+            'slug' => 'test-plan-'.$tenantId,
+            'description' => 'Test plan for customer authorization.',
+            'monthly_price' => 0,
+            'yearly_price' => 0,
+            'trial_days' => 0,
+            'is_free' => true,
+            'is_popular' => false,
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        $plan->features()->attach($feature->id, [
+            'is_enabled' => true,
+        ]);
+
+        Subscription::create([
+            'tenant_id' => $tenantId,
+            'plan_id' => $plan->id,
+            'status' => 'active',
+            'billing_cycle' => 'monthly',
+            'starts_at' => now(),
+            'ends_at' => null,
+            'trial_ends_at' => null,
+            'cancelled_at' => null,
+            'auto_renew' => true,
+        ]);
+    }
+
     public function test_tenant_user_can_view_customer_index(): void
     {
         $tenant = Tenant::factory()->create();
@@ -20,6 +111,8 @@ class CustomerControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'status' => 'active',
         ]);
+
+        $this->grantCustomerAccess($user);
 
         Customer::create([
             'tenant_id' => $tenant->id,
@@ -42,6 +135,7 @@ class CustomerControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'status' => 'active',
         ]);
+        $this->grantCustomerAccess($user);
 
         $response = $this
             ->actingAs($user)
@@ -59,6 +153,7 @@ class CustomerControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'status' => 'active',
         ]);
+        $this->grantCustomerAccess($user);
 
         $response = $this
             ->actingAs($user)
@@ -88,6 +183,7 @@ class CustomerControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'status' => 'active',
         ]);
+        $this->grantCustomerAccess($user);
 
         $customer = Customer::create([
             'tenant_id' => $tenant->id,
@@ -111,6 +207,7 @@ class CustomerControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'status' => 'active',
         ]);
+        $this->grantCustomerAccess($user);
 
         $customer = Customer::create([
             'tenant_id' => $otherTenant->id,
@@ -132,6 +229,7 @@ class CustomerControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'status' => 'active',
         ]);
+        $this->grantCustomerAccess($user);
 
         $customer = Customer::create([
             'tenant_id' => $tenant->id,
@@ -167,6 +265,7 @@ class CustomerControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'status' => 'active',
         ]);
+        $this->grantCustomerAccess($user);
 
         $customer = Customer::create([
             'tenant_id' => $otherTenant->id,

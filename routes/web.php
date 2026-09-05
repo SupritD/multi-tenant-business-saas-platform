@@ -37,7 +37,59 @@ Route::middleware([
     })->name('dashboard');
 
     Route::middleware('tenant.user')->group(function () {
-        Route::resource('customers', CustomerController::class);
+        Route::get('/customers', [
+            CustomerController::class,
+            'index',
+        ])
+            ->middleware('access:customers.view,customer-management')
+            ->name('customers.index');
+
+        Route::get('/customers/create', [
+            CustomerController::class,
+            'create',
+        ])
+            ->middleware('access:customers.create,customer-management')
+            ->name('customers.create');
+
+        Route::post('/customers', [
+            CustomerController::class,
+            'store',
+        ])
+            ->middleware('access:customers.create,customer-management')
+            ->name('customers.store');
+
+        Route::get('/customers/{customer}', [
+            CustomerController::class,
+            'show',
+        ])
+            ->middleware('access:customers.view,customer-management')
+            ->name('customers.show');
+
+        Route::get('/customers/{customer}/edit', [
+            CustomerController::class,
+            'edit',
+        ])
+            ->middleware('access:customers.update,customer-management')
+            ->name('customers.edit');
+
+        Route::put('/customers/{customer}', [
+            CustomerController::class,
+            'update',
+        ])
+            ->middleware('access:customers.update,customer-management')
+            ->name('customers.update');
+
+        Route::patch('/customers/{customer}', [
+            CustomerController::class,
+            'update',
+        ])
+            ->middleware('access:customers.update,customer-management');
+
+        Route::delete('/customers/{customer}', [
+            CustomerController::class,
+            'destroy',
+        ])
+            ->name('customers.destroy');
     });
 
     /*
@@ -72,4 +124,4 @@ Route::middleware([
  * |
  */
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
