@@ -39,6 +39,7 @@ class CustomerControllerTest extends TestCase
             'customers.view',
             'customers.create',
             'customers.update',
+            'customers.delete',
         ];
 
         foreach ($permissionSlugs as $slug) {
