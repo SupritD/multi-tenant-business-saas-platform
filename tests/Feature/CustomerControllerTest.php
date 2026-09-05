@@ -296,7 +296,7 @@ class CustomerControllerTest extends TestCase
             'tenant_id' => $tenant->id,
             'status' => 'active',
         ]);
-
+        $this->grantCustomerAccess($user);
         $customer = Customer::create([
             'tenant_id' => $tenant->id,
             'name' => 'Delete Me',
@@ -323,6 +323,7 @@ class CustomerControllerTest extends TestCase
             'status' => 'active',
         ]);
 
+        $this->grantCustomerAccess($user);
         $customer = Customer::create([
             'tenant_id' => $otherTenant->id,
             'name' => 'Protected Customer',

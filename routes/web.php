@@ -89,6 +89,7 @@ Route::middleware([
             CustomerController::class,
             'destroy',
         ])
+            ->middleware('access:customers.delete,customer-management')
             ->name('customers.destroy');
     });
 
