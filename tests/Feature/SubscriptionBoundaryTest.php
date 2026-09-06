@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Subscription;
 use App\Models\User;
 use App\Services\AccessService;
+use App\Services\SubscriptionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -13,12 +15,14 @@ class SubscriptionBoundaryTest extends TestCase
     use RefreshDatabase;
 
     private AccessService $service;
+    private SubscriptionService $subscriptionService;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->service = new AccessService;
+        $this->subscriptionService = new SubscriptionService;
 
         $this->createTenant();
         $this->createUserRolePermission();
@@ -282,5 +286,118 @@ class SubscriptionBoundaryTest extends TestCase
             ]);
 
         $this->assertTrue($this->canAccessFeature());
+    }
+
+    public function test_activate_subscription_makes_it_active(): void
+    {
+        DB::table('subscriptions')
+            ->where('id', 1)
+            ->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+            ]);
+
+        $subscription = Subscription::findOrFail(1);
+
+        $this->subscriptionService->activate($subscription);
+
+        $subscription->refresh();
+
+        $this->assertSame('active', $subscription->status);
+        $this->assertNull($subscription->cancelled_at);
+        $this->assertNotNull($subscription->starts_at);
+    }
+
+    public function test_activate_subscription_cancels_other_active_subscription_for_same_tenant(): void
+    {
+        $secondSubscriptionId = DB::table('subscriptions')->insertGetId([
+            'tenant_id' => 1,
+            'plan_id' => 1,
+            'status' => 'active',
+            'billing_cycle' => 'monthly',
+            'starts_at' => now()->subHour(),
+            'ends_at' => null,
+            'trial_ends_at' => null,
+            'cancelled_at' => null,
+            'auto_renew' => true,
+            'external_subscription_id' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $subscription = Subscription::findOrFail($secondSubscriptionId);
+
+        $this->subscriptionService->activate($subscription);
+
+        $subscription->refresh();
+
+        $this->assertSame('active', $subscription->status);
+
+        $original = Subscription::findOrFail(1);
+
+        $this->assertSame('cancelled', $original->status);
+        $this->assertNotNull($original->cancelled_at);
+    }
+
+    public function test_cancel_subscription_sets_cancelled_status_and_timestamp(): void
+    {
+        $subscription = Subscription::findOrFail(1);
+
+        $this->subscriptionService->cancel($subscription);
+
+        $subscription->refresh();
+
+        $this->assertSame('cancelled', $subscription->status);
+        $this->assertNotNull($subscription->cancelled_at);
+    }
+
+    public function test_cancel_subscription_is_idempotent(): void
+    {
+        $subscription = Subscription::findOrFail(1);
+
+        $this->subscriptionService->cancel($subscription);
+
+        $subscription->refresh();
+
+        $firstCancelledAt = $subscription->cancelled_at;
+
+        $this->subscriptionService->cancel($subscription);
+
+        $subscription->refresh();
+
+        $this->assertSame('cancelled', $subscription->status);
+        $this->assertNotNull($subscription->cancelled_at);
+        $this->assertTrue(
+            $subscription->cancelled_at->equalTo($firstCancelledAt)
+        );
+    }
+
+    public function test_suspend_subscription_sets_suspended_status(): void
+    {
+        $subscription = Subscription::findOrFail(1);
+
+        $this->subscriptionService->suspend($subscription);
+
+        $subscription->refresh();
+
+        $this->assertSame('suspended', $subscription->status);
+    }
+
+    public function test_suspended_subscription_can_be_activated(): void
+    {
+        $subscription = Subscription::findOrFail(1);
+
+        $this->subscriptionService->suspend($subscription);
+
+        $subscription->refresh();
+
+        $this->assertSame('suspended', $subscription->status);
+
+        $this->subscriptionService->activate($subscription);
+
+        $subscription->refresh();
+
+        $this->assertSame('active', $subscription->status);
+        $this->assertNull($subscription->cancelled_at);
     }
 }

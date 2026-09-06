@@ -42,13 +42,13 @@ class SubscriptionService
     {
         $subscription = $this->getActiveSubscription($tenant);
 
-        if (! $subscription) {
+        if (!$subscription) {
             return false;
         }
 
         $plan = $subscription->plan;
 
-        if (! $plan || ! $plan->is_active) {
+        if (!$plan || !$plan->is_active) {
             return false;
         }
 
@@ -70,13 +70,13 @@ class SubscriptionService
                 ->where('is_active', true)
                 ->first();
 
-            if (! $plan) {
+            if (!$plan) {
                 throw ValidationException::withMessages([
                     'plan_id' => 'The selected plan is not active or does not exist.',
                 ]);
             }
 
-            if (! in_array($billingCycle, ['monthly', 'yearly'], true)) {
+            if (!in_array($billingCycle, ['monthly', 'yearly'], true)) {
                 throw ValidationException::withMessages([
                     'billing_cycle' => 'Invalid billing cycle.',
                 ]);
@@ -97,6 +97,72 @@ class SubscriptionService
                 'billing_cycle' => $billingCycle,
                 'starts_at' => now(),
             ]);
+        });
+    }
+
+    public function activate(Subscription $subscription): Subscription
+    {
+        return DB::transaction(function () use ($subscription) {
+            // Do not reactivate an already expired subscription.
+            if ($subscription->isExpired()) {
+                throw ValidationException::withMessages([
+                    'subscription' => 'An expired subscription cannot be activated. Create a new subscription instead.',
+                ]);
+            }
+
+            // Ensure this tenant has only one active/trial subscription.
+            $subscription
+                ->tenant
+                ->subscriptions()
+                ->whereIn('status', ['active', 'trial'])
+                ->where('id', '!=', $subscription->id)
+                ->update([
+                    'status' => 'cancelled',
+                    'cancelled_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+            $subscription->update([
+                'status' => 'active',
+                'starts_at' => $subscription->starts_at ?? now(),
+                'cancelled_at' => null,
+                'updated_at' => now(),
+            ]);
+
+            return $subscription->fresh(['tenant', 'plan']);
+        });
+    }
+
+    public function cancel(Subscription $subscription): Subscription
+    {
+        return DB::transaction(function () use ($subscription) {
+            if ($subscription->status === 'cancelled') {
+                return $subscription->fresh(['tenant', 'plan']);
+            }
+
+            $subscription->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return $subscription->fresh(['tenant', 'plan']);
+        });
+    }
+
+    public function suspend(Subscription $subscription): Subscription
+    {
+        return DB::transaction(function () use ($subscription) {
+            if ($subscription->status === 'suspended') {
+                return $subscription->fresh(['tenant', 'plan']);
+            }
+
+            $subscription->update([
+                'status' => 'suspended',
+                'updated_at' => now(),
+            ]);
+
+            return $subscription->fresh(['tenant', 'plan']);
         });
     }
 }
