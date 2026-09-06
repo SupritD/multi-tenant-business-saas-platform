@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Services\AccessService;
-use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Closure;
 
 class EnsureAccess
 {
@@ -16,22 +16,22 @@ class EnsureAccess
     public function handle(
         Request $request,
         Closure $next,
-        string $permission,
-        string $feature
+        string $permissionSlug,
+        string $featureSlug = null
     ): Response {
         $user = $request->user();
 
-        if (! $user) {
+        if (!$user) {
             abort(401, 'Unauthenticated.');
         }
 
         $allowed = $this->accessService->can(
             $user,
-            $permission,
-            $feature
+            $permissionSlug,
+            $featureSlug
         );
 
-        if (! $allowed) {
+        if (!$allowed) {
             abort(403, 'Access denied.');
         }
 

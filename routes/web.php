@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TenantUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,6 +38,61 @@ Route::middleware([
     })->name('dashboard');
 
     Route::middleware('tenant.user')->group(function () {
+        Route::get('/users', [
+            TenantUserController::class,
+            'index',
+        ])
+            ->middleware('access:users.view')
+            ->name('users.index');
+
+        Route::get('/users/create', [
+            TenantUserController::class,
+            'create',
+        ])
+            ->middleware('access:users.create')
+            ->name('users.create');
+
+        Route::post('/users', [
+            TenantUserController::class,
+            'store',
+        ])
+            ->middleware('access:users.create')
+            ->name('users.store');
+
+        Route::get('/users/{user}', [
+            TenantUserController::class,
+            'show',
+        ])
+            ->middleware('access:users.view')
+            ->name('users.show');
+
+        Route::get('/users/{user}/edit', [
+            TenantUserController::class,
+            'edit',
+        ])
+            ->middleware('access:users.update')
+            ->name('users.edit');
+
+        Route::put('/users/{user}', [
+            TenantUserController::class,
+            'update',
+        ])
+            ->middleware('access:users.update')
+            ->name('users.update');
+
+        Route::patch('/users/{user}', [
+            TenantUserController::class,
+            'update',
+        ])
+            ->middleware('access:users.update');
+
+        Route::delete('/users/{user}', [
+            TenantUserController::class,
+            'destroy',
+        ])
+            ->middleware('access:users.delete')
+            ->name('users.destroy');
+
         Route::get('/customers', [
             CustomerController::class,
             'index',
@@ -125,4 +181,4 @@ Route::middleware([
  * |
  */
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
